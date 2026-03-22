@@ -5,6 +5,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { getDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
+import toast from "react-hot-toast";
 
 
 function Login() {
@@ -70,13 +71,8 @@ function Login() {
       );
 
       const firebaseUser = userCredential.user;
-      console.log("Logged in user:", firebaseUser.uid);
-
-
       const docRef = doc(db, "userData", firebaseUser.uid);
-      console.log("Document reference:", docRef);
       const docSnap = await getDoc(docRef);
-      console.log("Document snapshot:", docSnap);
 
       if (docSnap.exists()) {
         const userData = docSnap.data();
@@ -92,7 +88,7 @@ function Login() {
       navigate("/dashboard");
 
     } catch (error) {
-      alert("Invalid credentials");
+      toast.error("Invalid credentials");
       console.error("ERROR CODE:", error.code);
       console.error("ERROR MSG:", error.message);
     }

@@ -1,0 +1,102 @@
+/* 🌌 SAME BACKGROUND AS LOGIN */
+
+.notfound-page {
+  height: 100vh;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: radial-gradient(circle at 20% 30%, #0b0d14, transparent),
+              radial-gradient(circle at 80% 70%, #9333ea, transparent),
+              #020617;
+
+  color: white;
+}
+
+/* 💎 GLASS CARD (MATCH LOGIN CARD) */
+
+.notfound-card {
+  width: 400px;
+  max-width: 90%;
+
+  padding: 40px;
+  text-align: center;
+
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* 🔥 GRADIENT TEXT SAME AS TYPEWRITER */
+
+.notfound-code {
+  font-size: 80px;
+  font-weight: 900;
+  line-height: 1.1;
+
+  background: linear-gradient(90deg, #3b82f6, #9333ea, #22c55e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* TITLE */
+
+.notfound-title {
+  font-size: 22px;
+  margin-top: 10px;
+}
+
+/* SUBTEXT */
+
+.notfound-desc {
+  font-size: 14px;
+  margin-top: 10px;
+  color: #cbd5f5;
+}
+
+/* BUTTONS */
+
+.notfound-actions {
+  margin-top: 25px;
+  display: flex;
+  gap: 10px;
+}
+
+/* PRIMARY BUTTON (SAME AS LOGIN) */
+
+.notfound-actions button {
+  flex: 1;
+  padding: 12px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: linear-gradient(90deg, #3b82f6, #9333ea);
+  color: white;
+
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.notfound-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59,130,246,0.4);
+}
+
+/* SECONDARY BUTTON */
+
+.secondary-btn {
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.secondary-btn:hover {
+  background: rgba(255,255,255,0.15) !important;
+}

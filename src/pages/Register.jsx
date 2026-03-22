@@ -36,20 +36,6 @@ function Register() {
 
             const firebaseUser = userCredential.user;
 
-            // // Save extra data locally (or later DB)
-            // const newUser = {
-            //     uid: firebaseUser.uid,
-            //     name: formData.name,
-            //     email: formData.email,
-            //     password: formData.password,
-            //     phone: formData.phone,
-            //     balance: 0,
-            //     tasks: [],
-            //     additionalInfo: {}
-            // };
-
-            // localStorage.setItem("register", JSON.stringify(newUser));
-
             await setDoc(doc(db, "userData", firebaseUser.uid), {
                 name: formData.name,
                 email: formData.email,

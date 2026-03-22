@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   collection,
   query,
@@ -33,6 +34,7 @@ function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("tasks");
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const [selectedTask, setSelectedTask] = useState(null);
   const [statusAction, setStatusAction] = useState("running");
@@ -106,13 +108,14 @@ function AdminDashboard() {
 
     // 🔐 Not logged in
     if (!token || !storedUser) {
+      toast.error("Please login first");
       navigate("/");
       return;
     }
 
     // 🚫 Not admin
     if (storedUser.email !== "admin@mail.com") {
-      alert("Access denied. Admins can access only!");
+      toast.error("Access denied. Admin only!");
       navigate("/dashboard");
       return;
     }
@@ -228,8 +231,15 @@ function AdminDashboard() {
           </li>
 
           <li
-            className={activeMenu === "all" ? "active" : ""}
-            onClick={() => setActiveMenu("all")}
+            className={activeMenu === "users" ? "active" : ""}
+            onClick={() => setActiveMenu("users")}
+          >
+            Users Details
+          </li>
+
+          <li
+            className={activeMenu === "task" ? "active" : ""}
+            onClick={() => setActiveMenu("task")}
           >
             Task Analytics
           </li>
@@ -258,7 +268,7 @@ function AdminDashboard() {
         <div className="content">
 
           {/* 📊 TASK ANALYTICS */}
-          {activeMenu === "all" && (
+          {activeMenu === "task" && (
             <>
               {/* STATS CARDS */}
               <div className="cards">
@@ -459,8 +469,106 @@ function AdminDashboard() {
             </div>
           )}
 
+          {/* 👥 USERS */}
+          {activeMenu === "users" && (
+            <div className="task-section">
+
+              <div className="task-header">
+                <h2>All Users</h2>
+              </div>
+
+              <div className="task-list">
+                {users.length === 0 ? (
+                  <p>No users found</p>
+                ) : (
+                  users.map(user => (
+                    <div
+                      key={user.id}
+                      className="task-card-horizontal admin-card"
+                      onClick={() => setSelectedUser(user)}
+                    >
+
+                      <div className="task-left">
+                        <div><strong>Name:</strong> {user.name}</div>
+                        <div><strong>Email:</strong> {user.email}</div>
+                      </div>
+
+                      <div className="task-center">
+                        <span className="task-status">
+                          {user.status || "active"}
+                        </span>
+                      </div>
+
+                      <div className="task-right">
+                        <div className="task-cost">
+                          ₹ {user.balance || 0}
+                        </div>
+                      </div>
+
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
+
+      {selectedUser && (
+        <div className="modal">
+          <div className="modal-content task-modal">
+
+            <h2>User Details</h2>
+
+            <div className="task-grid">
+
+              <div className="task-item">
+                <span>Name</span>
+                <strong>{selectedUser.name}</strong>
+              </div>
+
+              <div className="task-item">
+                <span>Email</span>
+                <strong>{selectedUser.email}</strong>
+              </div>
+
+              <div className="task-item">
+                <span>Phone</span>
+                <strong>{selectedUser.phone || "N/A"}</strong>
+              </div>
+
+              <div className="task-item">
+                <span>Status</span>
+                <strong>{selectedUser.status || "active"}</strong>
+              </div>
+
+              <div className="task-item">
+                <span>Wallet Balance</span>
+                <strong>₹ {selectedUser.balance || 0}</strong>
+              </div>
+
+            </div>
+
+            {/* CREATED DATE */}
+            {selectedUser.createdAt?.seconds && (
+              <div className="task-section-block">
+                <span>Created At</span>
+                <p>
+                  {new Date(selectedUser.createdAt.seconds * 1000).toLocaleString()}
+                </p>
+              </div>
+            )}
+
+            <div className="task-modal-footer">
+              <button onClick={() => setSelectedUser(null)}>
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {selectedTask && (
         <div className="modal">

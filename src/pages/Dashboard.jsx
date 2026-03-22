@@ -14,6 +14,7 @@ import {
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase"; // make sure storage is configured
 import { db } from "../firebase";
+import toast from "react-hot-toast";
 import "./dashboard.css";
 
 function Dashboard() {
@@ -48,20 +49,20 @@ function Dashboard() {
 
   // ✅ Load user from localStorage
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const storedUser = JSON.parse(localStorage.getItem("user"));
 
-    if (!storedUser) {
+    // 🔐 Not logged in
+    if (!token || !storedUser) {
+      toast.error("Please login first");
       navigate("/");
       return;
     }
 
-    setUser(storedUser);
-  }, []);
 
-  // ✅ Protect route
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) navigate("/");
+    // ✅ Admin allowed
+    setUser(storedUser);
+
   }, []);
 
   // ✅ 🔥 REAL-TIME USER SYNC (FIXED)
@@ -150,7 +151,7 @@ function Dashboard() {
 
   const handleRecharge = async () => {
     if (!rechargeAmount || rechargeAmount <= 0) {
-      alert("Enter valid amount");
+      toast.error("Please enter a valid amount");
       return;
     }
 
@@ -161,12 +162,14 @@ function Dashboard() {
         balance: newBalance
       });
 
+      toast.success(`Wallet recharged with ₹ ${rechargeAmount}`);
+
       setRechargeAmount("");
       setShowRecharge(false);
 
     } catch (error) {
       console.error("Recharge failed:", error);
-      alert("Recharge failed");
+      toast.error("Recharge failed");
     }
   };
 
@@ -186,8 +189,16 @@ function Dashboard() {
 
   // ✅ ADD TASK
   const handleAddTask = async () => {
-    if (!taskForm.userid || !taskForm.year || !taskForm.totalFarmers || !taskForm.password || !taskForm.file) {
-      alert("User ID, Password,Year, File and Total Farmers are required!");
+    const errors = [];
+
+    if (!taskForm.userid) errors.push("User ID is required");
+    if (!taskForm.password) errors.push("Password is required");
+    if (!taskForm.year) errors.push("Year is required");
+    if (!taskForm.file) errors.push("File upload is required");
+    if (!taskForm.totalFarmers) errors.push("Total Farmers is required");
+
+    if (errors.length > 0) {
+      toast.error(errors.join(", "));
       return;
     }
 
@@ -195,7 +206,7 @@ function Dashboard() {
     const cost = farmerCount * 2;
 
     if ((user.balance || 0) < cost) {
-      alert("Insufficient balance");
+      toast.error("Insufficient balance");
       return;
     }
 
@@ -219,6 +230,8 @@ function Dashboard() {
         createdAt: serverTimestamp()
       });
 
+      toast.success("Task added successfully");
+
       setShowTaskForm(false);
 
       setTaskForm({
@@ -231,6 +244,7 @@ function Dashboard() {
       });
 
     } catch (error) {
+      toast.error("Failed to add task");
       console.error("Error adding task:", error);
     }
   };
@@ -247,11 +261,14 @@ function Dashboard() {
       });
 
       await deleteDoc(doc(db, "tasks", task.id));
+      
+      toast.success("Refund processed and task deleted");
 
     } catch (error) {
       console.error("Delete error:", error);
+      toast.error("Failed to delete task");
     } finally {
-      setLoadingTaskId(null); // 🔥 stop loader
+      setLoadingTaskId(null);
     }
   };
 
@@ -826,8 +843,8 @@ function Dashboard() {
 
               {selectedTask.status !== "completed" ? (
 
-              <div className="task-section-block">
-                <span>File:   </span>
+                <div className="task-section-block">
+                  <span>File:   </span>
                   <a
                     href={selectedTask.file}
                     target="_blank"
@@ -836,7 +853,7 @@ function Dashboard() {
                   >
                     View Uploaded File
                   </a>
-              </div> ) : null}
+                </div>) : null}
 
             </div>
 
