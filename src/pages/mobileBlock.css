@@ -1,0 +1,51 @@
+.mobile-block {
+  height: 100vh;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: radial-gradient(circle at 20% 30%, #0b0d14, transparent),
+              radial-gradient(circle at 80% 70%, #9333ea, transparent),
+              #020617;
+
+  color: white;
+}
+
+/* 💎 GLASS CARD */
+
+.mobile-card {
+  width: 90%;
+  max-width: 380px;
+
+  padding: 30px;
+  text-align: center;
+
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px);
+
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.15);
+
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+/* TITLE */
+
+.mobile-title {
+  font-size: 24px;
+  font-weight: 800;
+
+  background: linear-gradient(90deg,#3b82f6,#9333ea,#22c55e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* TEXT */
+
+.mobile-desc {
+  font-size: 14px;
+  margin-top: 15px;
+  color: #cbd5f5;
+}
