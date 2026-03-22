@@ -11,6 +11,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import {
+  LineChart,
+  Line,
   BarChart,
   Bar,
   XAxis,
@@ -19,7 +21,6 @@ import {
   ResponsiveContainer,
   CartesianGrid
 } from "recharts";
-
 import "./dashboard.css";
 import "./adminDashboard.css";
 
@@ -42,6 +43,34 @@ function AdminDashboard() {
     setStatusAction(status);
     setMessage("");
   };
+
+  const getDailyRevenue = () => {
+    const dailyMap = {};
+
+    allTasks.forEach(task => {
+      if (task.status !== "completed") return;
+
+      if (!task.createdAt?.seconds) return;
+
+      const date = new Date(task.createdAt.seconds * 1000)
+        .toISOString()
+        .split("T")[0]; // YYYY-MM-DD
+
+      if (!dailyMap[date]) {
+        dailyMap[date] = 0;
+      }
+
+      dailyMap[date] += task.cost || 0;
+    });
+
+    // convert to array for chart
+    return Object.keys(dailyMap).map(date => ({
+      date,
+      revenue: dailyMap[date]
+    }));
+  };
+
+  const dailyRevenueData = getDailyRevenue();
 
   const handleUpdateStatus = async () => {
     try {
@@ -71,19 +100,26 @@ function AdminDashboard() {
     return () => unsubscribe();
   }, []);
 
-
-
-  // ✅ Load user
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (!storedUser) navigate("/");
-    setUser(storedUser);
-  }, []);
-
-  // 🔐 Protect
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) navigate("/");
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+
+    // 🔐 Not logged in
+    if (!token || !storedUser) {
+      navigate("/");
+      return;
+    }
+
+    // 🚫 Not admin
+    if (storedUser.email !== "admin@mail.com") {
+      alert("Access denied. Admins can access only!");
+      navigate("/dashboard");
+      return;
+    }
+
+    // ✅ Admin allowed
+    setUser(storedUser);
+
   }, []);
 
   // 🔥 Fetch NEW tasks
@@ -188,15 +224,23 @@ function AdminDashboard() {
             className={activeMenu === "tasks" ? "active" : ""}
             onClick={() => setActiveMenu("tasks")}
           >
-            Tasks
+            New Tasks
           </li>
 
           <li
             className={activeMenu === "all" ? "active" : ""}
             onClick={() => setActiveMenu("all")}
           >
-            Analytics
+            Task Analytics
           </li>
+
+          <li
+            className={activeMenu === "revenue" ? "active" : ""}
+            onClick={() => setActiveMenu("revenue")}
+          >
+            Revenue Analytics
+          </li>
+
         </ul>
 
         <button className="logout-btn" onClick={handleLogout}>
@@ -213,7 +257,7 @@ function AdminDashboard() {
 
         <div className="content">
 
-          {/* 📊 ANALYTICS */}
+          {/* 📊 TASK ANALYTICS */}
           {activeMenu === "all" && (
             <>
               {/* STATS CARDS */}
@@ -242,6 +286,37 @@ function AdminDashboard() {
                   <h3>Failed</h3>
                   <p>{stats.failed}</p>
                 </div>
+              </div>
+
+
+              {/* 📊 BAR CHART */}
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={chartData}>
+                    <CartesianGrid stroke="rgba(255,255,255,0.1)" />
+                    <XAxis stroke="#ccc" dataKey="name" />
+                    <YAxis stroke="#ccc" />
+                    <Tooltip
+                      contentStyle={{
+                        background: "#1e293b",
+                        border: "none",
+                        color: "#fff"
+                      }}
+                    />
+                    <Bar dataKey="value" fill="#ffffff" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+            </>
+          )}
+
+          {/* 📊 REVENUE ANALYTICS */}
+          {activeMenu === "revenue" && (
+            <>
+              {/* STATS CARDS */}
+              <div className="cards">
+
                 <div className="card revenue-card">
                   <h3>Total Revenue</h3>
                   <p>₹ {stats.revenue.toLocaleString()}</p>
@@ -268,13 +343,16 @@ function AdminDashboard() {
               </div>
 
 
-              {/* 📊 BAR CHART */}
               <div className="chart-container">
+                <h3>Daily Revenue</h3>
+
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={chartData}>
+                  <LineChart data={dailyRevenueData}>
                     <CartesianGrid stroke="rgba(255,255,255,0.1)" />
-                    <XAxis stroke="#ccc" dataKey="name" />
+
+                    <XAxis dataKey="date" stroke="#ccc" />
                     <YAxis stroke="#ccc" />
+
                     <Tooltip
                       contentStyle={{
                         background: "#1e293b",
@@ -282,12 +360,21 @@ function AdminDashboard() {
                         color: "#fff"
                       }}
                     />
-                    <Bar dataKey="value" fill="#ffffff" radius={[6, 6, 0, 0]} />
-                  </BarChart>
+
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#22c55e"
+                      strokeWidth={3}
+                      dot={{ r: 4 }}
+                    />
+                  </LineChart>
                 </ResponsiveContainer>
               </div>
+
             </>
           )}
+
 
           {/* 🔥 NEW TASKS */}
           {activeMenu === "tasks" && (
