@@ -77,7 +77,7 @@ function Homepage() {
                 </p>
 
                 <button
-                    className="cta-btn"
+                    className="cta-btn-start"
                     onClick={() => navigate("/login")}
                 >
                     Start Today →
