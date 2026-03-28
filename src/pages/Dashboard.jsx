@@ -16,6 +16,7 @@ import { storage } from "../firebase"; // make sure storage is configured
 import { db } from "../firebase";
 import toast from "react-hot-toast";
 import "./dashboard.css";
+import * as XLSX from "xlsx";
 
 function Dashboard() {
 
@@ -38,6 +39,7 @@ function Dashboard() {
   const [uploading, setUploading] = useState(false);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [status, setStatus] = useState("");
 
 
   const [taskForm, setTaskForm] = useState({
@@ -122,28 +124,167 @@ function Dashboard() {
     failed: tasks.filter(t => t.status === "failed").length
   };
 
+  // const handleFileUpload = async (e) => {
+  //   const file = e.target.files[0];
+
+  //   if (!file) return;
+
+  //   try {
+  //     setUploading(true);
+
+  //     const fileRef = ref(storage, `tasks/${user.uid}/${Date.now()}-${file.name}`);
+
+  //     await uploadBytes(fileRef, file);
+
+  //     const downloadURL = await getDownloadURL(fileRef);
+
+  //     // 🔥 SAVE URL IN FORM
+  //     setTaskForm(prev => ({
+  //       ...prev,
+  //       file: downloadURL
+  //     }));
+
+  //   } catch (error) {
+  //     console.error("Upload error:", error);
+  //   } finally {
+  //     setUploading(false);
+  //   }
+  // };
+
+  const REQUIRED_COLUMNS = [
+    "Farmer Name",
+    "Crop Category",
+    "Crop*",
+    "Area Shown in (Ha)*",
+    "Expected Yields in (Quintals)*",
+    "Self Consumption in (Quintals)*"
+  ];
+
+  const validateExcel = async (file) => {
+    const errors = [];
+    const rowErrors = [];
+
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    //const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+    const rawJson = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+    const json = rawJson.map(row => {
+      const newRow = {};
+
+      Object.keys(row).forEach(key => {
+        const cleanKey = key.trim();
+
+        let value = row[key];
+
+        // ✅ trim only if string
+        if (typeof value === "string") {
+          value = value.trim();
+        }
+
+        newRow[cleanKey] = value;
+      });
+
+      return newRow;
+    });
+
+    if (json.length === 0) {
+      return { valid: false, errors: ["Excel is empty"] };
+    }
+
+    const headers = Object.keys(json[0]);
+
+    // ✅ Check required columns
+    REQUIRED_COLUMNS.forEach(col => {
+      if (!headers.includes(col)) {
+        errors.push(`Missing column: ${col}`);
+      }
+    });
+
+    if (errors.length > 0) {
+      return { valid: false, errors };
+    }
+
+    // ✅ Row validation
+    json.forEach((row, index) => {
+      const rowError = [];
+
+      REQUIRED_COLUMNS.forEach(col => {
+        if (!row[col] || row[col].toString().trim() === "") {
+          rowError.push(`${col} is mandatory`);
+        }
+      });
+
+      if (rowError.length > 0) {
+        rowErrors.push({
+          row: index + 2,
+          errors: rowError
+        });
+      }
+    });
+
+    return {
+      valid: errors.length === 0 && rowErrors.length === 0,
+      errors,
+      rowErrors
+    };
+  };
+
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-
     if (!file) return;
 
+    // ❌ File type check
+    if (!file.name.match(/\.(xlsx|xls)$/)) {
+      toast.error("Only Excel files allowed");
+      return;
+    }
+
     try {
+      // 🔍 STEP 1: VALIDATION
+      setStatus("validating");
+      const result = await validateExcel(file);
+      console.log("Excel Validation result:", result);
+
+      if (!result.valid) {
+        setStatus("invalid");
+        if (result.errors.length > 0) {
+          //toast.error(result.errors.join(", "));
+          console.error("Validation errors:", result.errors);
+        }
+
+        if (result.rowErrors.length > 0) {
+          // toast.error(
+          //   `Row ${result.rowErrors[0].row}: ${result.rowErrors[0].errors.join(", ")}`
+          // );
+          console.error("Row validation errors:", result.rowErrors);
+        }
+
+        return;
+      }
+
+      // ✅ UPLOAD AFTER VALIDATION
       setUploading(true);
+      // ⬆️ STEP 2: UPLOAD
+      setStatus("uploading");
 
       const fileRef = ref(storage, `tasks/${user.uid}/${Date.now()}-${file.name}`);
-
       await uploadBytes(fileRef, file);
 
       const downloadURL = await getDownloadURL(fileRef);
 
-      // 🔥 SAVE URL IN FORM
       setTaskForm(prev => ({
         ...prev,
         file: downloadURL
       }));
 
-    } catch (error) {
-      console.error("Upload error:", error);
+      setStatus("");
+      toast.success("Excel validated & uploaded ✅");
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Invalid Excel file");
     } finally {
       setUploading(false);
     }
@@ -344,42 +485,42 @@ function Dashboard() {
         <ul className="menu">
           <li
             className={activeMenu === "dashboard" ? "active" : ""}
-            onClick={() => {setActiveMenu("dashboard");setSidebarOpen(false);}}
+            onClick={() => { setActiveMenu("dashboard"); setSidebarOpen(false); }}
           >
             Dashboard
           </li>
 
           <li
             className={activeMenu === "new" ? "active" : ""}
-            onClick={() => {setActiveMenu("new");setSidebarOpen(false);}}
+            onClick={() => { setActiveMenu("new"); setSidebarOpen(false); }}
           >
             Create New Tasks
           </li>
 
           <li
             className={activeMenu === "completed" ? "active" : ""}
-            onClick={() => {setActiveMenu("completed");setSidebarOpen(false);}}
+            onClick={() => { setActiveMenu("completed"); setSidebarOpen(false); }}
           >
             Completed Tasks
           </li>
 
           <li
             className={activeMenu === "running" ? "active" : ""}
-            onClick={() => {setActiveMenu("running");setSidebarOpen(false);}}
+            onClick={() => { setActiveMenu("running"); setSidebarOpen(false); }}
           >
             Running Tasks
           </li>
 
           <li
             className={activeMenu === "failed" ? "active" : ""}
-            onClick={() => {setActiveMenu("failed");setSidebarOpen(false);}}
+            onClick={() => { setActiveMenu("failed"); setSidebarOpen(false); }}
           >
             Failed Tasks
           </li>
 
           <li
             className={activeMenu === "settings" ? "active" : ""}
-            onClick={() => {setActiveMenu("settings");setSidebarOpen(false);}}
+            onClick={() => { setActiveMenu("settings"); setSidebarOpen(false); }}
           >
             Settings
           </li>
@@ -568,12 +709,45 @@ function Dashboard() {
                         accept=".xlsx,.xls"
                         onChange={handleFileUpload}
                       />
-                     {uploading && <div className="loader"></div>}
+                      {status === "validating" && (
+                        <div className="file-status validating">
+                          <div className="file-loader"></div>
+                          <span>Validating file...</span>
+                        </div>
+                      )}
+
+                      {status === "uploading" && (
+                        <div className="file-status uploading">
+                          <div className="file-loader"></div>
+                          <span>Uploading file...</span>
+                        </div>
+                      )}
+
+                      {status === "invalid" && (
+                        // document.querySelector('input[type="file"]').value = "",
+                        <div className="file-status invalid">
+                          <span>Invalid file, Please upload a valid file.</span>
+                        </div>
+                      )}
 
                       {taskForm.file && (
-                        <p style={{ color: "green" }}>
-                          File uploaded ✅
-                        </p>
+                        <div className="file-uploaded">
+                          <span className="file-text">File uploaded ✅</span>
+
+                          <button
+                            className="remove-file-btn"
+                            onClick={() => {
+                              setTaskForm(prev => ({
+                                ...prev,
+                                file: ""
+                              }));
+                              document.querySelector('input[type="file"]').value = "";
+                            }
+                            }
+                          >
+                            ✕
+                          </button>
+                        </div>
                       )}
 
                       <input name="totalFarmers" placeholder="Total Farmers" value={taskForm.totalFarmers} onChange={handleTaskChange} />
@@ -582,7 +756,18 @@ function Dashboard() {
                         Add Task
                       </button>
 
-                      <button onClick={() => setShowTaskForm(false)}>
+                      <button onClick={() => {
+                        setShowTaskForm(false);
+                        setTaskForm({
+                          userid: "",
+                          password: "",
+                          year: "",
+                          season: "",
+                          file: "",
+                          totalFarmers: ""
+                        });
+                        setStatus("");
+                      }}>
                         Cancel
                       </button>
 
