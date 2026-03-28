@@ -80,7 +80,7 @@ function Homepage() {
                     className="cta-btn"
                     onClick={() => navigate("/login")}
                 >
-                    Enquiry Now →
+                    Start Today →
                 </button>
 
             </section>
