@@ -23,6 +23,7 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const [showRecharge, setShowRecharge] = useState(false);
+  const [showRechargeMessage, setShowRechargeMessage] = useState(true);
   const [rechargeAmount, setRechargeAmount] = useState("");
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [user, setUser] = useState(null);
@@ -717,7 +718,7 @@ function Dashboard() {
                         ))}
                       </select>
 
-                       <select
+                      <select
                         name="season"
                         value={taskForm.season}
                         onChange={handleTaskChange}
@@ -725,7 +726,7 @@ function Dashboard() {
                       >
                         <option value="">Select Season</option>
 
-                        {["Rabi", "Kharif","Summer"].map(season => (
+                        {["Rabi", "Kharif", "Summer"].map(season => (
                           <option key={season} value={season}>
                             {season}
                           </option>
@@ -1031,22 +1032,35 @@ function Dashboard() {
       </div>
 
       {/* RECHARGE */}
-      {showRecharge && user.status == "verified" && (
+      {showRecharge && user.status === "verified" && (
         <div className="modal">
           <div className="modal-content">
+
             <h2>Recharge Wallet</h2>
-            <input
-              type="number"
-              placeholder="Enter amount"
-              value={rechargeAmount}
-              onChange={(e) => setRechargeAmount(e.target.value)}
-            />
-            <button className="pay-btn" onClick={handleRecharge}>
-              Proceed to Pay
-            </button>
+
+            {showRechargeMessage ? 
+              <div className="recharge-message">
+                Contact admin for recharge 💬
+              </div>
+             : 
+              <>
+                <input
+                  type="number"
+                  placeholder="Enter amount"
+                  value={rechargeAmount}
+                  onChange={(e) => setRechargeAmount(e.target.value)}
+                />
+
+                <button className="pay-btn" onClick={handleRecharge}>
+                  Proceed to Pay
+                </button>
+              </>
+            }
+
             <button onClick={() => setShowRecharge(false)}>
               Close
             </button>
+
           </div>
         </div>
       )}
