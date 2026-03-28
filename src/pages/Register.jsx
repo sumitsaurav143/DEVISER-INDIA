@@ -41,6 +41,7 @@ function Register() {
                 email: formData.email,
                 password: formData.password,
                 phone: formData.phone,
+                status: "new" ,
                 balance: 0,
                 tasks: [],
                 additionalInfo: {},
@@ -50,7 +51,7 @@ function Register() {
 
             alert("Registered successfully!");
 
-            navigate("/");
+            navigate("/login");
         } catch (error) {
             alert(error.message);
         }
@@ -58,6 +59,9 @@ function Register() {
 
     return (
         <div className="login-page">
+            {/* 🌌 FLOATING BLOBS */}
+            <div className="blob blob1"></div>
+            <div className="blob blob2"></div>
 
             {/* NAVBAR */}
             <div className="navbar">
@@ -126,7 +130,7 @@ function Register() {
                             Already have an account?{" "}
                             <span
                                 style={{ color: "#00bcd4", cursor: "pointer" }}
-                                onClick={() => navigate("/")}
+                                onClick={() => navigate("/login")}
                             >
                                 Login
                             </span>

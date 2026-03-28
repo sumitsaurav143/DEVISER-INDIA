@@ -39,6 +39,7 @@ function AdminDashboard() {
   const [selectedTask, setSelectedTask] = useState(null);
   const [statusAction, setStatusAction] = useState("running");
   const [message, setMessage] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const openModal = (task, status) => {
     setSelectedTask(task);
@@ -197,7 +198,7 @@ function AdminDashboard() {
   // 🔓 Logout
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/");
+    navigate("/login");
   };
 
   if (!user) return <div>Loading...</div>;
@@ -205,8 +206,16 @@ function AdminDashboard() {
   return (
     <div className="dashboard">
 
+      {/* ✅ OVERLAY */}
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* SIDEBAR */}
-      <div className="sidebar">
+      <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
 
         <div className="logo">ᗪ乇ᐯ丨丂乇尺</div>
 
@@ -225,28 +234,28 @@ function AdminDashboard() {
         <ul className="menu">
           <li
             className={activeMenu === "tasks" ? "active" : ""}
-            onClick={() => setActiveMenu("tasks")}
+            onClick={() => { setActiveMenu("tasks"); setSidebarOpen(false); }}
           >
             New Tasks
           </li>
 
           <li
             className={activeMenu === "users" ? "active" : ""}
-            onClick={() => setActiveMenu("users")}
+            onClick={() => { setActiveMenu("users"); setSidebarOpen(false); }}
           >
             Users Details
           </li>
 
           <li
             className={activeMenu === "task" ? "active" : ""}
-            onClick={() => setActiveMenu("task")}
+            onClick={() => { setActiveMenu("task"); setSidebarOpen(false); }}
           >
             Task Analytics
           </li>
 
           <li
             className={activeMenu === "revenue" ? "active" : ""}
-            onClick={() => setActiveMenu("revenue")}
+            onClick={() => { setActiveMenu("revenue"); setSidebarOpen(false); }}
           >
             Revenue Analytics
           </li>
@@ -262,6 +271,14 @@ function AdminDashboard() {
       <div className="main">
 
         <div className="topbar">
+          <div className="topbar-left">
+            <button
+              className="hamburger"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              ☰
+            </button>
+          </div>
           <h3>Admin Dashboard</h3>
         </div>
 

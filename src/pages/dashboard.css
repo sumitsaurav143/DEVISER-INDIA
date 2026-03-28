@@ -11,7 +11,7 @@
   width: 100%;
   overflow: hidden;
   background: radial-gradient(circle at 20% 30%, #0b0d14, transparent),
-    radial-gradient(circle at 80% 70%, #9333ea, transparent),
+    radial-gradient(circle at 80% 70%, #ae4de2, transparent),
     #020617;
   color: white;
 }
@@ -153,6 +153,26 @@
   background: rgba(59, 130, 246, 0.2);
   color: #9333ea;
   font-weight: 600;
+}
+
+.adminEnter-btn {
+  width: 200px;
+  padding: 12px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: linear-gradient(90deg, #4a37f7, #ff0127);
+  color: white;
+
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: auto;
+  padding: 10px;
+  border: none;
+
 }
 
 /* LOGOUT */
@@ -485,6 +505,16 @@
   background: #3498db;
 }
 
+.status-blocked {
+  background: #ff0000;
+    color: white;
+}
+
+.status-verified {
+  background: #00be29;
+  color: white;
+}
+
 .status-running {
   background: #f39c12;
 }
@@ -689,4 +719,271 @@
 
 .file-btn:active {
   transform: scale(0.97);
+}
+
+.blocked-notice {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-30%, -50%);
+
+  padding: 25px 35px;
+  border-radius: 16px;
+
+  /* 🌌 Glass effect */
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(239, 68, 68, 0.3);
+
+
+  color: #f87171;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+
+  max-width: 400px;
+  width: 90%;
+
+  z-index: 9999;
+
+  animation: fadeInScale 0.4s ease;
+}
+
+
+/* ========================= */
+/* 📱 MOBILE (<= 768px) */
+/* ========================= */
+
+@media (max-width: 768px) {
+
+  /* KEEP DASHBOARD FLEX */
+  .dashboard {
+    flex-direction: row; /* ❗ DON'T CHANGE */
+    height: 100vh;
+  }
+
+  /* ✅ SIDEBAR (SCROLLABLE, NOT BROKEN) */
+  .sidebar {
+    width: 200px;
+    min-width: 200px;
+
+    flex-direction: column;
+    align-items: flex-start;
+
+    overflow-y: auto;
+    height: 100vh;
+
+    padding: 15px;
+  }
+
+  /* LOGO FIX */
+  .logo {
+    font-size: 16px;
+  }
+
+  /* USER INFO SMALL */
+  .user-info {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .user-name {
+    font-size: 12px;
+  }
+
+  .user-email {
+    font-size: 10px;
+  }
+
+  /* MENU */
+  .menu li {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  /* BUTTONS */
+  .logout-btn,
+  .adminEnter-btn {
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    width: calc(100% - 200px);
+  }
+
+  /* TOPBAR */
+  .topbar {
+    padding: 10px;
+  }
+
+  .topbar h3 {
+    font-size: 14px;
+  }
+
+  /* WALLET */
+  .wallet-btn {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  /* CONTENT */
+  .content {
+    padding: 12px;
+  }
+
+  /* CARDS */
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .card p {
+    font-size: 18px;
+  }
+
+  /* TASK HEADER */
+  .task-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* FILTER INPUTS */
+  .search-input,
+  .date-input {
+    width: 100%;
+  }
+
+  /* TASK CARD */
+  .task-card-horizontal {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .task-right {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* MODAL */
+  .modal-content {
+    width: 90%;
+  }
+
+  /* GRID */
+  .task-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* BLOCKED FIX */
+  .blocked-notice {
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* HAMBURGER BUTTON */
+.hamburger {
+  display: none;
+  font-size: 22px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+/* TOPBAR LEFT */
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* OVERLAY */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
+/* ========================= */
+/* 📱 MOBILE */
+/* ========================= */
+
+@media (max-width: 768px) {
+
+  /* SHOW HAMBURGER */
+  .hamburger {
+    display: block;
+  }
+
+  /* SIDEBAR HIDDEN BY DEFAULT */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+
+    width: 240px;
+    height: 100vh;
+
+    z-index: 1000;
+
+    transition: 0.3s ease;
+    background-color: #17032c;
+  }
+
+  /* SIDEBAR OPEN */
+  .sidebar.open {
+    left: 0;
+  }
+
+  /* MAIN FULL WIDTH */
+  .main {
+    width: 100%;
+  }
+
+}
+
+
+/* ========================= */
+/* 📲 TABLET (769px - 1024px) */
+/* ========================= */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  /* SIDEBAR SMALLER */
+  .sidebar {
+    width: 200px;
+  }
+
+  /* CARDS */
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* TASK CARD */
+  .task-card-horizontal {
+    padding: 12px;
+  }
+
+  /* MODAL */
+  .modal-content {
+    width: 80%;
+  }
+
 }

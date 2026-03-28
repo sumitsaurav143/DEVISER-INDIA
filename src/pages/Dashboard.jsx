@@ -37,6 +37,8 @@ function Dashboard() {
 
   const [uploading, setUploading] = useState(false);
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
 
   const [taskForm, setTaskForm] = useState({
     userid: "",
@@ -55,12 +57,10 @@ function Dashboard() {
     // 🔐 Not logged in
     if (!token || !storedUser) {
       toast.error("Please login first");
-      navigate("/");
+      navigate("/login");
       return;
     }
 
-
-    // ✅ Admin allowed
     setUser(storedUser);
 
   }, []);
@@ -261,7 +261,7 @@ function Dashboard() {
       });
 
       await deleteDoc(doc(db, "tasks", task.id));
-      
+
       toast.success("Refund processed and task deleted");
 
     } catch (error) {
@@ -272,10 +272,13 @@ function Dashboard() {
     }
   };
 
+  const openAdminPanel = () => {
+    navigate("/admin");
+  }
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/");
+    navigate("/login");
   };
 
   if (!user) return <div>Loading...</div>;
@@ -311,8 +314,16 @@ function Dashboard() {
   return (
     <div className="dashboard">
 
+      {/* ✅ OVERLAY */}
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* SIDEBAR */}
-      <div className="sidebar">
+      <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
 
         <div className="logo">ᗪ乇ᐯ丨丂乇尺</div>
 
@@ -333,56 +344,74 @@ function Dashboard() {
         <ul className="menu">
           <li
             className={activeMenu === "dashboard" ? "active" : ""}
-            onClick={() => setActiveMenu("dashboard")}
+            onClick={() => {setActiveMenu("dashboard");setSidebarOpen(false);}}
           >
             Dashboard
           </li>
 
           <li
             className={activeMenu === "new" ? "active" : ""}
-            onClick={() => setActiveMenu("new")}
+            onClick={() => {setActiveMenu("new");setSidebarOpen(false);}}
           >
             Create New Tasks
           </li>
 
           <li
             className={activeMenu === "completed" ? "active" : ""}
-            onClick={() => setActiveMenu("completed")}
+            onClick={() => {setActiveMenu("completed");setSidebarOpen(false);}}
           >
             Completed Tasks
           </li>
 
           <li
             className={activeMenu === "running" ? "active" : ""}
-            onClick={() => setActiveMenu("running")}
+            onClick={() => {setActiveMenu("running");setSidebarOpen(false);}}
           >
             Running Tasks
           </li>
 
           <li
             className={activeMenu === "failed" ? "active" : ""}
-            onClick={() => setActiveMenu("failed")}
+            onClick={() => {setActiveMenu("failed");setSidebarOpen(false);}}
           >
             Failed Tasks
           </li>
 
           <li
             className={activeMenu === "settings" ? "active" : ""}
-            onClick={() => setActiveMenu("settings")}
+            onClick={() => {setActiveMenu("settings");setSidebarOpen(false);}}
           >
             Settings
           </li>
         </ul>
 
+
+        {
+          user.email === "admin@mail.com" ?
+            <button className="adminEnter-btn" onClick={openAdminPanel}>
+              Enter Admin Mode
+            </button> : null
+        }
+
         <button className="logout-btn" onClick={handleLogout}>
           Logout
         </button>
+
       </div>
 
       {/* MAIN */}
       <div className="main">
 
+
         <div className="topbar">
+          <div className="topbar-left">
+            <button
+              className="hamburger"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              ☰
+            </button>
+          </div>
           <h3>
             {activeMenu === "dashboard" && "Dashboard"}
             {activeMenu === "new" && "Tasks"}
@@ -400,387 +429,395 @@ function Dashboard() {
           </button>
         </div>
 
-        <div className="content">
+        {user.status === "blocked" ? (
+          <div className="blocked-notice">
+            Your account has been blocked.
+            <br />Please contact support.
+          </div>
+        ) : (
 
-          {/* DASHBOARD */}
-          {activeMenu === "dashboard" && (
-            <div className="cards">
+          <div className="content">
 
-              <div className="card">
-                <h3>Total Groups</h3>
-                <p>{stats.total}</p>
-              </div>
+            {/* DASHBOARD */}
+            {activeMenu === "dashboard" && (
+              <div className="cards">
 
-              <div className="card">
-                <h3>Pending Groups</h3>
-                <p>{stats.new}</p>
-              </div>
-
-              <div className="card">
-                <h3>Completed Groups</h3>
-                <p>{stats.completed}</p>
-              </div>
-
-              <div className="card">
-                <h3>Running Groups</h3>
-                <p>{stats.running}</p>
-              </div>
-
-              <div className="card">
-                <h3>Failed Groups</h3>
-                <p>{stats.failed}</p>
-              </div>
-
-            </div>
-          )}
-
-          {/* CREATE TASK */}
-          {activeMenu === "new" && (
-            <div className="task-section">
-
-              <div className="task-header">
-                <h2>New Tasks</h2>
-
-                <button
-                  className="add-task-btn"
-                  onClick={() => setShowTaskForm(true)}
-                >
-                  + New Task
-                </button>
-                <div style={{ display: "flex", gap: "10px" }}>
-
-                  <input
-                    type="date"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    className="date-input"
-                  />
-
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="search-input"
-                  />
-
-                  {/* ✅ CLEAR BUTTON */}
-                  {(search || dateFilter) && (
-                    <button
-                      className="clear-btn"
-                      onClick={handleClearFilters}
-                    >
-                      Clear
-                    </button>
-                  )}
-
+                <div className="card">
+                  <h3>Total Groups</h3>
+                  <p>{stats.total}</p>
                 </div>
+
+                <div className="card">
+                  <h3>Pending Groups</h3>
+                  <p>{stats.new}</p>
+                </div>
+
+                <div className="card">
+                  <h3>Completed Groups</h3>
+                  <p>{stats.completed}</p>
+                </div>
+
+                <div className="card">
+                  <h3>Running Groups</h3>
+                  <p>{stats.running}</p>
+                </div>
+
+                <div className="card">
+                  <h3>Failed Groups</h3>
+                  <p>{stats.failed}</p>
+                </div>
+
               </div>
+            )}
 
-              <div className="task-list">
-                {newTasks.length === 0 ? (
-                  <p>No new tasks</p>
-                ) : (
-                  newTasks.map(task => (
-                    <div
-                      className="task-card-horizontal"
-                      key={task.id}
-                      onClick={() => setSelectedTask(task)}
-                    >
-                      <div className="task-left">
-                        <div><strong>User:</strong> {task.userid}</div>
-                        <div><strong>Password:</strong> ******</div>
-                      </div>
+            {/* CREATE TASK */}
+            {activeMenu === "new" && (
+              <div className="task-section">
 
-                      <div className="task-center">
-                        <span className={`task-status status-${task.status}`}>
-                          {task.status}
-                        </span>
-                      </div>
+                <div className="task-header">
+                  <h2>New Tasks</h2>
 
-                      <div className="task-right">
-                        <button
-                          className="delete-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteTask(task);
-                          }}
-                        >
-                          Delete
-                        </button>
+                  <button
+                    className="add-task-btn"
+                    onClick={() => setShowTaskForm(true)}
+                  >
+                    + New Task
+                  </button>
+                  <div style={{ display: "flex", gap: "10px" }}>
 
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* MODAL */}
-              {showTaskForm && (
-                <div className="modal">
-                  <div className="modal-content">
-
-                    <h2>Create New Task</h2>
-
-                    <input name="userid" placeholder="User ID" value={taskForm.userid} onChange={handleTaskChange} />
-                    <input name="password" placeholder="Password" value={taskForm.password} onChange={handleTaskChange} />
-                    <input name="year" placeholder="Year" value={taskForm.year} onChange={handleTaskChange} />
-                    <input name="season" placeholder="Season" value={taskForm.season} onChange={handleTaskChange} />
                     <input
-                      type="file"
-                      placeholder="File Name"
-                      accept=".xlsx,.xls"
-                      onChange={handleFileUpload}
+                      type="date"
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="date-input"
                     />
-                    {uploading && <p>Uploading file...</p>}
 
-                    {taskForm.file && (
-                      <p style={{ color: "green" }}>
-                        File uploaded ✅
-                      </p>
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="search-input"
+                    />
+
+                    {/* ✅ CLEAR BUTTON */}
+                    {(search || dateFilter) && (
+                      <button
+                        className="clear-btn"
+                        onClick={handleClearFilters}
+                      >
+                        Clear
+                      </button>
                     )}
-
-                    <input name="totalFarmers" placeholder="Total Farmers" value={taskForm.totalFarmers} onChange={handleTaskChange} />
-
-                    <button className="pay-btn" onClick={handleAddTask}>
-                      Add Task
-                    </button>
-
-                    <button onClick={() => setShowTaskForm(false)}>
-                      Cancel
-                    </button>
 
                   </div>
                 </div>
-              )}
-            </div>
-          )}
 
-          {activeMenu === "completed" && (
-            <div className="task-section">
+                <div className="task-list">
+                  {newTasks.length === 0 ? (
+                    <p>No new tasks</p>
+                  ) : (
+                    newTasks.map(task => (
+                      <div
+                        className="task-card-horizontal"
+                        key={task.id}
+                        onClick={() => setSelectedTask(task)}
+                      >
+                        <div className="task-left">
+                          <div><strong>User:</strong> {task.userid}</div>
+                          <div><strong>Password:</strong> ******</div>
+                        </div>
 
-              <div className="task-header">
-                <h2>Completed Tasks</h2>
-                <div style={{ display: "flex", gap: "10px" }}>
+                        <div className="task-center">
+                          <span className={`task-status status-${task.status}`}>
+                            {task.status}
+                          </span>
+                        </div>
 
-                  <input
-                    type="date"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    className="date-input"
-                  />
+                        <div className="task-right">
+                          <button
+                            className="delete-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteTask(task);
+                            }}
+                          >
+                            Delete
+                          </button>
 
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="search-input"
-                  />
-
-
-
-                  {/* ✅ CLEAR BUTTON */}
-                  {(search || dateFilter) && (
-                    <button
-                      className="clear-btn"
-                      onClick={handleClearFilters}
-                    >
-                      Clear
-                    </button>
+                        </div>
+                      </div>
+                    ))
                   )}
-
                 </div>
-              </div>
 
-              <div className="task-list">
-                {completedTasks.length === 0 ? (
-                  <p>No completed tasks</p>
-                ) : (
-                  completedTasks.map(task => (
-                    <div
-                      className="task-card-horizontal"
-                      key={task.id}
-                      onClick={() => setSelectedTask(task)}
-                    >
-                      <div className="task-left">
-                        <div><strong>User:</strong> {task.userid}</div>
-                        <div><strong>Season:</strong> {task.season}</div>
-                      </div>
+                {/* MODAL */}
+                {showTaskForm && (
+                  <div className="modal">
+                    <div className="modal-content">
 
-                      <div className="task-center">
-                        <span className="task-status status-completed">
-                          completed
-                        </span>
-                      </div>
+                      <h2>Create New Task</h2>
+
+                      <input name="userid" placeholder="User ID" value={taskForm.userid} onChange={handleTaskChange} />
+                      <input name="password" placeholder="Password" value={taskForm.password} onChange={handleTaskChange} />
+                      <input name="year" placeholder="Year" value={taskForm.year} onChange={handleTaskChange} />
+                      <input name="season" placeholder="Season" value={taskForm.season} onChange={handleTaskChange} />
+                      <input
+                        type="file"
+                        placeholder="File Name"
+                        accept=".xlsx,.xls"
+                        onChange={handleFileUpload}
+                      />
+                     {uploading && <div className="loader"></div>}
+
+                      {taskForm.file && (
+                        <p style={{ color: "green" }}>
+                          File uploaded ✅
+                        </p>
+                      )}
+
+                      <input name="totalFarmers" placeholder="Total Farmers" value={taskForm.totalFarmers} onChange={handleTaskChange} />
+
+                      <button className="pay-btn" onClick={handleAddTask}>
+                        Add Task
+                      </button>
+
+                      <button onClick={() => setShowTaskForm(false)}>
+                        Cancel
+                      </button>
+
                     </div>
-                  ))
+                  </div>
                 )}
               </div>
+            )}
 
-            </div>
-          )}
+            {activeMenu === "completed" && (
+              <div className="task-section">
 
-          {activeMenu === "running" && (
-            <div className="task-section">
+                <div className="task-header">
+                  <h2>Completed Tasks</h2>
+                  <div style={{ display: "flex", gap: "10px" }}>
 
-              <div className="task-header">
-                <h2>Running Tasks</h2>
-                <div style={{ display: "flex", gap: "10px" }}>
+                    <input
+                      type="date"
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="date-input"
+                    />
 
-                  <input
-                    type="date"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    className="date-input"
-                  />
-
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="search-input"
-                  />
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="search-input"
+                    />
 
 
 
-                  {/* ✅ CLEAR BUTTON */}
-                  {(search || dateFilter) && (
-                    <button
-                      className="clear-btn"
-                      onClick={handleClearFilters}
-                    >
-                      Clear
-                    </button>
-                  )}
+                    {/* ✅ CLEAR BUTTON */}
+                    {(search || dateFilter) && (
+                      <button
+                        className="clear-btn"
+                        onClick={handleClearFilters}
+                      >
+                        Clear
+                      </button>
+                    )}
 
+                  </div>
                 </div>
-              </div>
 
-              <div className="task-list">
-                {runningTasks.length === 0 ? (
-                  <p>No tasks Inprogress</p>
-                ) : (
-                  runningTasks.map(task => (
-                    <div
-                      className="task-card-horizontal"
-                      key={task.id}
-                      onClick={() => setSelectedTask(task)}
-                    >
-                      <div className="task-left">
-                        <div><strong>User:</strong> {task.userid}</div>
-                        <div><strong>Season:</strong> {task.season}</div>
+                <div className="task-list">
+                  {completedTasks.length === 0 ? (
+                    <p>No completed tasks</p>
+                  ) : (
+                    completedTasks.map(task => (
+                      <div
+                        className="task-card-horizontal"
+                        key={task.id}
+                        onClick={() => setSelectedTask(task)}
+                      >
+                        <div className="task-left">
+                          <div><strong>User:</strong> {task.userid}</div>
+                          <div><strong>Season:</strong> {task.season}</div>
+                        </div>
+
+                        <div className="task-center">
+                          <span className="task-status status-completed">
+                            completed
+                          </span>
+                        </div>
                       </div>
-
-                      <div className="task-center">
-                        <span className="task-status status-running">
-                          In progress
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-            </div>
-          )}
-
-
-          {activeMenu === "failed" && (
-            <div className="task-section">
-
-              <div className="task-header">
-                <h2>Failed/Rejected Tasks</h2>
-                <div style={{ display: "flex", gap: "10px" }}>
-
-
-                  <input
-                    type="date"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    className="date-input"
-                  />
-
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="search-input"
-                  />
-
-                  {/* ✅ CLEAR BUTTON */}
-                  {(search || dateFilter) && (
-                    <button
-                      className="clear-btn"
-                      onClick={handleClearFilters}
-                    >
-                      Clear
-                    </button>
+                    ))
                   )}
-
                 </div>
+
               </div>
+            )}
 
-              <div className="task-list">
-                {failedTasks.length === 0 ? (
-                  <p>No failed tasks</p>
-                ) : (
-                  failedTasks.map(task => (
-                    <div
-                      className="task-card-horizontal"
-                      key={task.id}
-                      onClick={() => setSelectedTask(task)}
-                    >
-                      <div className="task-left">
-                        <div><strong>User:</strong> {task.userid}</div>
-                        <div><strong>Season:</strong> {task.season}</div>
+            {activeMenu === "running" && (
+              <div className="task-section">
+
+                <div className="task-header">
+                  <h2>Running Tasks</h2>
+                  <div style={{ display: "flex", gap: "10px" }}>
+
+                    <input
+                      type="date"
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="date-input"
+                    />
+
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="search-input"
+                    />
+
+
+
+                    {/* ✅ CLEAR BUTTON */}
+                    {(search || dateFilter) && (
+                      <button
+                        className="clear-btn"
+                        onClick={handleClearFilters}
+                      >
+                        Clear
+                      </button>
+                    )}
+
+                  </div>
+                </div>
+
+                <div className="task-list">
+                  {runningTasks.length === 0 ? (
+                    <p>No tasks Inprogress</p>
+                  ) : (
+                    runningTasks.map(task => (
+                      <div
+                        className="task-card-horizontal"
+                        key={task.id}
+                        onClick={() => setSelectedTask(task)}
+                      >
+                        <div className="task-left">
+                          <div><strong>User:</strong> {task.userid}</div>
+                          <div><strong>Season:</strong> {task.season}</div>
+                        </div>
+
+                        <div className="task-center">
+                          <span className="task-status status-running">
+                            In progress
+                          </span>
+                        </div>
                       </div>
+                    ))
+                  )}
+                </div>
 
-                      <div className="task-center">
-                        <span className="task-status status-failed">
-                          failed
-                        </span>
-                      </div>
-
-                      <div className="task-right">
-                        <button
-                          className="refund-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteTask(task);
-                          }}
-                          disabled={loadingTaskId === task.id}
-                        >
-                          {loadingTaskId === task.id ? (
-                            <span className="loader"></span>
-                          ) : (
-                            "Get Refund"
-                          )}
-                        </button>
-
-                      </div>
-                    </div>
-                  ))
-                )}
               </div>
+            )}
 
-            </div>
-          )}
 
-          {/* SETTINGS */}
-          {activeMenu === "settings" && (
-            <div>
-              <p>Manage your account preferences.</p>
-            </div>
-          )}
+            {activeMenu === "failed" && (
+              <div className="task-section">
 
-        </div>
+                <div className="task-header">
+                  <h2>Failed/Rejected Tasks</h2>
+                  <div style={{ display: "flex", gap: "10px" }}>
+
+
+                    <input
+                      type="date"
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="date-input"
+                    />
+
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="search-input"
+                    />
+
+                    {/* ✅ CLEAR BUTTON */}
+                    {(search || dateFilter) && (
+                      <button
+                        className="clear-btn"
+                        onClick={handleClearFilters}
+                      >
+                        Clear
+                      </button>
+                    )}
+
+                  </div>
+                </div>
+
+                <div className="task-list">
+                  {failedTasks.length === 0 ? (
+                    <p>No failed tasks</p>
+                  ) : (
+                    failedTasks.map(task => (
+                      <div
+                        className="task-card-horizontal"
+                        key={task.id}
+                        onClick={() => setSelectedTask(task)}
+                      >
+                        <div className="task-left">
+                          <div><strong>User:</strong> {task.userid}</div>
+                          <div><strong>Season:</strong> {task.season}</div>
+                        </div>
+
+                        <div className="task-center">
+                          <span className="task-status status-failed">
+                            failed
+                          </span>
+                        </div>
+
+                        <div className="task-right">
+                          <button
+                            className="refund-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteTask(task);
+                            }}
+                            disabled={loadingTaskId === task.id}
+                          >
+                            {loadingTaskId === task.id ? (
+                              <span className="loader"></span>
+                            ) : (
+                              "Get Refund"
+                            )}
+                          </button>
+
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+              </div>
+            )}
+
+            {/* SETTINGS */}
+            {activeMenu === "settings" && (
+              <div>
+                <p>Manage your account preferences.</p>
+              </div>
+            )}
+
+          </div>
+        )}
       </div>
 
       {/* RECHARGE */}
-      {showRecharge && (
+      {showRecharge && user.status == "verified" && (
         <div className="modal">
           <div className="modal-content">
             <h2>Recharge Wallet</h2>

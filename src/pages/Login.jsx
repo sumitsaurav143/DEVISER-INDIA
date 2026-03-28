@@ -97,6 +97,11 @@ function Login() {
   return (
     <div className="login-page">
 
+      {/* 🌌 FLOATING BLOBS */}
+            <div className="blob blob1"></div>
+            <div className="blob blob2"></div>
+
+
       {/* NAVBAR */}
       <div className="navbar">
         <div className="logo">ᗪ乇ᐯ丨丂乇尺</div>
