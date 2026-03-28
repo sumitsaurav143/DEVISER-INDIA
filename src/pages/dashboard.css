@@ -925,7 +925,8 @@
 /* 📱 MOBILE */
 /* ========================= */
 
-@media (max-width: 768px) {
+/* MOBILE + TABLET */
+@media (max-width: 1024px) {
 
   /* SHOW HAMBURGER */
   .hamburger {
@@ -964,26 +965,3 @@
 /* 📲 TABLET (769px - 1024px) */
 /* ========================= */
 
-@media (min-width: 769px) and (max-width: 1024px) {
-
-  /* SIDEBAR SMALLER */
-  .sidebar {
-    width: 200px;
-  }
-
-  /* CARDS */
-  .cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  /* TASK CARD */
-  .task-card-horizontal {
-    padding: 12px;
-  }
-
-  /* MODAL */
-  .modal-content {
-    width: 80%;
-  }
-
-}
