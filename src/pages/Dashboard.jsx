@@ -273,7 +273,7 @@ function Dashboard() {
       await uploadBytes(fileRef, file);
 
       const downloadURL = await getDownloadURL(fileRef);
- 
+
       setTaskForm(prev => ({
         ...prev,
         file: downloadURL
@@ -527,16 +527,17 @@ function Dashboard() {
         </ul>
 
 
-        {
-          user.email === "admin@mail.com" ?
+        <div className="sidebar-footer">
+          {user.email === "admin@mail.com" && (
             <button className="adminEnter-btn" onClick={openAdminPanel}>
               Enter Admin Mode
-            </button> : null
-        }
+            </button>
+          )}
 
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout
-        </button>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
 
       </div>
 
@@ -701,8 +702,36 @@ function Dashboard() {
 
                       <input name="userid" placeholder="User ID" value={taskForm.userid} onChange={handleTaskChange} />
                       <input name="password" placeholder="Password" value={taskForm.password} onChange={handleTaskChange} />
-                      <input name="year" placeholder="Year" value={taskForm.year} onChange={handleTaskChange} />
-                      <input name="season" placeholder="Season" value={taskForm.season} onChange={handleTaskChange} />
+                      <select
+                        name="year"
+                        value={taskForm.year}
+                        onChange={handleTaskChange}
+                        className="input-select"
+                      >
+                        <option value="">Select Year</option>
+
+                        {[2024, 2025, 2026, 2027, 2028, 2029, 2030].map(year => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
+                      </select>
+
+                       <select
+                        name="season"
+                        value={taskForm.season}
+                        onChange={handleTaskChange}
+                        className="input-select"
+                      >
+                        <option value="">Select Season</option>
+
+                        {["Rabi", "Kharif","Summer"].map(season => (
+                          <option key={season} value={season}>
+                            {season}
+                          </option>
+                        ))}
+                      </select>
+
                       <input
                         type="file"
                         placeholder="File Name"

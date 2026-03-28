@@ -49,8 +49,8 @@ function Login() {
 
   /* 🔐 Login */
   const [formData, setFormData] = useState({
-    email: "admin@mail.com",
-    password: "123456"
+    email: "",
+    password: ""
   });
 
   const handleChange = (e) => {
