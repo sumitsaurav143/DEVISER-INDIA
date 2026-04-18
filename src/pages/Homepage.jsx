@@ -6,7 +6,8 @@ import {
     ResponsiveContainer
 } from "recharts";
 import "./homepage.css";
-
+import founderImage from "../assets/Founder.png";
+import Chatbox from "./Chatbox";
 
 function Homepage() {
     const navigate = useNavigate();
@@ -18,15 +19,44 @@ function Homepage() {
         { value: 30 }
     ]);
 
+    const words = ["AI Automation", "Intelligence", "Smart Workflows", "AI Growth"];
+
+    const [text, setText] = useState("");
+    const [wordIndex, setWordIndex] = useState(0);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+
+    useEffect(() => {
+        const currentWord = words[wordIndex];
+        const speed = isDeleting ? 50 : 100;
+
+        const timer = setTimeout(() => {
+            if (!isDeleting) {
+                setText(currentWord.substring(0, text.length + 1));
+
+                if (text === currentWord) {
+                    setTimeout(() => setIsDeleting(true), 1000);
+                }
+            } else {
+                setText(currentWord.substring(0, text.length - 1));
+
+                if (text === "") {
+                    setIsDeleting(false);
+                    setWordIndex((prev) => (prev + 1) % words.length);
+                }
+            }
+        }, speed);
+
+        return () => clearTimeout(timer);
+    }, [text, isDeleting, wordIndex]);
+
     useEffect(() => {
         const interval = setInterval(() => {
             setChartData(prev => {
                 const newValue = Math.floor(Math.random() * 50) + 10;
-
-                const updated = [...prev.slice(1), { value: newValue }];
-                return updated;
+                return [...prev.slice(1), { value: newValue }];
             });
-        }, 1000); // every 1 sec
+        }, 1000);
 
         return () => clearInterval(interval);
     }, []);
@@ -51,7 +81,7 @@ function Homepage() {
     return (
         <div className="homepage">
 
-            {/* 🌌 FLOATING BLOBS */}
+            {/* BLOBS */}
             <div className="blob blob1"></div>
             <div className="blob blob2"></div>
 
@@ -68,33 +98,42 @@ function Homepage() {
             <section className="hero fade-in">
 
                 <h1>
-                    Build faster <br />
-                    <span>Automate everything</span>
+                    Build for <br />
+                    <span className="animated-text">{text}</span>
+                    <span className="cursor">|</span>
                 </h1>
 
-                <p>
-                    The next-gen automation platform for high performance teams.
+
+                {/* 🔥 CLEAN TEXT */}
+                <p className="hero-desc">
+                    AI Agents • Intelligent Automation <br />
+                    Smart Workflows • AI-Powered Applications
                 </p>
 
-                <button
-                    className="cta-btn-start"
-                    onClick={() => navigate("/login")}
-                >
-                    Start Today →
-                </button>
+                <div className="hero-buttons">
+                    <button className="cta-btn-start">
+                        Start Today →
+                    </button>
+
+                    <button className="cta-secondary">
+                        View Demo
+                    </button>
+                </div>
+
+                <p className="tagline">
+                    AI-driven platform helping businesses automate, predict, and scale faster
+                </p>
 
             </section>
 
-            {/* 🖥 PREMIUM DASHBOARD PREVIEW */}
+            {/* PREVIEW */}
             <section className="preview fade-in">
-
                 <div className="preview-card">
-
                     <div className="preview-glow"></div>
 
                     <div className="preview-content">
-                        <div className="live-chart">
 
+                        <div className="live-chart">
                             <ResponsiveContainer width="100%" height={120}>
                                 <LineChart data={chartData}>
                                     <Line
@@ -106,87 +145,88 @@ function Homepage() {
                                     />
                                 </LineChart>
                             </ResponsiveContainer>
-
                         </div>
-
-                        {/* <div className="preview-row">
-                            <div className="box"></div>
-                            <div className="box"></div>
-                            <div className="box"></div>
-                        </div> */}
-
-
-
 
                         <div className="table">
 
-                            <div className="progress-row">
-                                <span>Task 1</span>
-                                <div className="progress-bar">
-                                    <div className="progress-fill fill1"></div>
+                            {["Task 1", "Task 2", "Task 3"].map((task, i) => (
+                                <div className="progress-row" key={i}>
+                                    <span>{task}</span>
+                                    <div className="progress-bar">
+                                        <div className={`progress-fill fill${i + 1}`}></div>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div className="progress-row">
-                                <span>Task 2</span>
-                                <div className="progress-bar">
-                                    <div className="progress-fill fill2"></div>
-                                </div>
-                            </div>
-
-                            <div className="progress-row">
-                                <span>Task 3</span>
-                                <div className="progress-bar">
-                                    <div className="progress-fill fill3"></div>
-                                </div>
-                            </div>
+                            ))}
 
                         </div>
 
                     </div>
-
                 </div>
-
             </section>
 
+            {/* SERVICES */}
+            <section className="services fade-in">
+                <h2 className="section-title">Our Services</h2>
 
-            {/* ✨ FEATURES */}
+                <div className="services-grid">
+
+                    <div className="service-card">
+                        <h3>📄 Data Automation</h3>
+                        <p>Automate repetitive data entry tasks with speed & accuracy.</p>
+                    </div>
+
+                    <div className="service-card">
+                        <h3>🧪 QA Automation</h3>
+                        <p>Automated testing pipelines for faster and reliable releases.</p>
+                    </div>
+
+                    <div className="service-card">
+                        <h3>⚙️ Custom Automation</h3>
+                        <p>Tailor-made workflows built specifically for your business.</p>
+                    </div>
+
+                    <div className="service-card">
+                        <h3>🌐 Website Development</h3>
+                        <p>Modern, fast, and scalable websites with premium UI/UX.</p>
+                    </div>
+
+                </div>
+            </section>
+
+            {/* FEATURES */}
             <section className="features fade-in">
-
                 <h2 className="section-title">Why Choose Deviser</h2>
 
                 <div className="feature-grid">
 
                     <div className="feature-card">
                         <div className="icon">⚡</div>
-                        <h3>Lightning Fast</h3>
-                        <p>Execute bulk automation tasks within seconds.</p>
+                        <h3>AI Decision Engine</h3>
+                        <p>Make intelligent decisions based on real-time data.</p>
                     </div>
 
                     <div className="feature-card">
                         <div className="icon">🔒</div>
-                        <h3>Secure Platform</h3>
-                        <p>Your data is protected with enterprise-grade security.</p>
+                        <h3>AI-Powered Security</h3>
+                        <p>Smart anomaly detection and data protection.</p>
                     </div>
 
                     <div className="feature-card">
                         <div className="icon">📊</div>
                         <h3>Real-time Insights</h3>
-                        <p>Track performance with live analytics and reports.</p>
+                        <p>Live analytics and performance tracking.</p>
                     </div>
 
                 </div>
-
             </section>
 
-            {/* 📊 TRUST STATS */}
+            {/* STATS */}
             <section className="stats fade-in">
-
                 <div className="stats-grid">
 
                     <div className="stat-card">
                         <h1 className="stat-number">25+</h1>
-                        <p>Daily Active Users</p>
+                        <p>Daily Users</p>
                     </div>
 
                     <div className="stat-card">
@@ -200,86 +240,108 @@ function Homepage() {
                     </div>
 
                     <div className="stat-card">
-                        <h1 className="stat-number">10</h1>
-                        <p>Dedicated Members</p>
-                    </div>
-
-                    <div className="stat-card">
                         <h1 className="stat-number">24x7</h1>
-                        <p>System Availability</p>
+                        <p>Availability</p>
                     </div>
-
-
 
                 </div>
-
             </section>
 
-            {/* 💰 PRICING */}
-            <section className="pricing fade-in">
-
-                <h2 className="pricing-title">Simple, Transparent Pricing</h2>
+            {/* PRICING */}
+            {/* <section className="pricing fade-in">
+                <h2 className="pricing-title">Simple Pricing</h2>
 
                 <div className="pricing-grid">
 
-                    {/* FREE PLAN */}
                     <div className="price-card">
-                        <h3>Stater</h3>
+                        <h3>Starter</h3>
                         <p className="price">Free</p>
-
                         <ul>
-                            <li>✔ 1 Free Demo</li>
-                            <li>✔ 1 Account (1 Device)</li>
-                            <li>✔ Automation Feature</li>
-                            <li>✔ Real-time Insights</li>
-                            <li>✔ Task Completion ~1 Hour</li>
-                            <li>✔ 75% Accuracy</li>
-                            <li>❌ No Customer Support</li>
+                            <li>✔ 1 Demo</li>
+                            <li>✔ 1 Device</li>
+                            <li>✔ Basic Automation</li>
+                            <li>❌ No Support</li>
                         </ul>
-
                         <button onClick={() => navigate("/login")}>
                             Get Started
                         </button>
                     </div>
 
-                    {/* PRO PLAN (HIGHLIGHT) */}
                     <div className="price-card highlight glow">
                         <h3>Pro</h3>
                         <p className="price">₹1000</p>
-
                         <ul>
-                            <li>✔ 1 Account (3 Devices)</li>
-                            <li>✔ All Automation Features</li>
-                            <li>✔ Real-time Insights</li>
-                            <li>✔ Task Analytics</li>
-                            <li>✔ Task Completion ~30 Min</li>
-                            <li>✔ 90% Accuracy</li>
-                            <li>✔ Support (10AM–5PM)</li>
+                            <li>✔ 3 Devices</li>
+                            <li>✔ Full Automation</li>
+                            <li>✔ Analytics</li>
+                            <li>✔ Support</li>
                         </ul>
-
                         <button onClick={() => navigate("/login")}>
-                            Upgrade to Pro
+                            Upgrade
                         </button>
                     </div>
 
-                    {/* GO PRO PLAN */}
                     <div className="price-card">
                         <h3>Go Pro</h3>
-                        <p className="price">Min ₹2500</p>
-
+                        <p className="price">₹2500+</p>
                         <ul>
                             <li>✔ Unlimited Devices</li>
-                            <li>✔ All Automation Features</li>
-                            <li>✔ Real-time Analytics</li>
-                            <li>✔ Task Completion ~30 Min</li>
-                            <li>✔ 99% Accuracy</li>
-                            <li>✔ Dedicated 24x7 Support</li>
-                            <li>✔ Custom Enhancements</li>
+                            <li>✔ 24x7 Support</li>
+                            <li>✔ Custom Solutions</li>
                         </ul>
-
                         <button onClick={() => navigate("/login")}>
                             Go Pro
                         </button>
+                    </div>
+
+                </div>
+            </section> */}
+
+
+            {/* 👤 FOUNDER SECTION */}
+            <section className="founder fade-in">
+
+                <div className="founder-container">
+
+                    {/* LEFT → IMAGE */}
+                    <div className="founder-image-advanced">
+
+                        <div className="frame-bg"></div>
+                        <div className="frame-border"></div>
+
+                        <img
+                            src={founderImage}
+                            alt="Founder"
+                            className="founder-img"
+                        />
+
+
+
+                    </div>
+
+                    {/* RIGHT → CONTENT */}
+                    <div className="founder-content">
+
+                        <h2 className="section-title">Meet the Founder</h2>
+
+                        <h3 className="founder-name">Sumit Saurav</h3>
+
+                        <p className="founder-role">Founder • Deviser India</p>
+
+                        <p className="founder-desc">
+                            I built Deviser to bring AI into everyday business workflows —
+                            reducing manual effort and enabling intelligent decision-making.
+                        </p>
+
+                        <p className="founder-desc">
+                            From AI agents to predictive workflows, our goal is to help companies
+                            scale faster, cut costs, and operate smarter.
+                        </p>
+
+                        <div className="vision-box">
+                            🚀 <strong>Vision:</strong> Build India’s most powerful AI-driven automation platform
+                        </div>
+
                     </div>
 
                 </div>
@@ -288,8 +350,21 @@ function Homepage() {
 
             {/* CTA */}
             <section className="cta fade-in">
-                <h2>Start building today</h2>
+                <h2>
+                    Ready to automate your business?
+                    <br />
+                    <span>Let’s build your AI Solution 🚀</span>
+                </h2>
+
+                <button
+                    className="cta-btn-start"
+                    onClick={() => navigate("/login")}
+                >
+                    Get Started →
+                </button>
             </section>
+
+            {/* <Chatbox /> */}
 
         </div>
     );
